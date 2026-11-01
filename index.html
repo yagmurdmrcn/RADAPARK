@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Park360 - Giriş &amp; Kayıt Portalı</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0B1120;
+            --bg-card: #1E293B;
+            --bg-dark: #0F172A;
+            --border: #334155;
+            --accent: #6366F1;
+            --accent-hover: #4F46E5;
+            --free: #10B981;
+            --owner-color: #F59E0B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-dark);
+            border: 1.5px solid var(--border);
+            border-radius: 24px;
+            padding: 36px 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+        }
+
+        .brand-text h1 {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .brand-text span {
+            font-size: 11px;
+            font-weight: 700;
+            color: #818CF8;
+            letter-spacing: 0.5px;
+        }
+
+        /* GİRİŞ / KAYIT SEKMELERİ */
+        .tab-switch {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--bg-dark);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        /* ROL SEÇİMİ (MÜŞTERİ vs OTOPARK SAHİBİ) */
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-card {
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--bg-card);
+            transition: all 0.2s;
+        }
+
+        .role-card.active {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.12);
+        }
+
+        .role-card.active.owner {
+            border-color: var(--owner-color);
+            background: rgba(245, 158, 11, 0.12);
+        }
+
+        .role-title {
+            font-size: 13px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .role-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* FORM ALANLARI */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            color: white;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+        }
+
+        /* OTOPARK SAHİBİ EK ALANLARI */
+        .owner-fields {
+            background: rgba(245, 158, 11, 0.04);
+            border: 1px dashed rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .owner-fields.show {
+            display: block;
+        }
+
+        .owner-fields-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--owner-color);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+        }
+
+        .alert-box {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10B981;
+        }
+        /* ================= RESPONSIVE AYARLARI ================= */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+                align-items: flex-start;
+            }
+
+            .auth-container {
+                padding: 24px 20px;
+                border-radius: 18px;
+            }
+
+            .brand-text h1 {
+                font-size: 20px;
+            }
+
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .role-title {
+                font-size: 12px;
+            }
+
+            .role-desc {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <!-- MARKA -->
+        <div class="brand">
+            <div class="brand-logo">P</div>
+            <div class="brand-text">
+                <h1>RADAPARK</h1>
+                <span>KİMLİK DOĞRULAMA SİSTEMİ</span>
+            </div>
+        </div>
+
+        <!-- BİLDİRİM KUTUSU -->
+        <div id="alertBox" class="alert-box"></div>
+
+        <!-- GİRİŞ / KAYIT GEÇİŞİ -->
+        <div class="tab-switch">
+            <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthMode('login')">Giriş Yap</button>
+            <button class="tab-btn" id="tabRegisterBtn" onclick="switchAuthMode('register')">Yeni Kayıt</button>
+        </div>
+
+        <!-- ROL SEÇİMİ -->
+        <div class="role-selector">
+            <div class="role-card active" id="roleCustomer" onclick="selectRole('customer')">
+                <span class="role-title">🚗 Müşteri / Sürücü</span>
+                <span class="role-desc">Boş yer arama &amp; takip</span>
+            </div>
+            <div class="role-card" id="roleOwner" onclick="selectRole('owner')">
+                <span class="role-title">🏢 Otopark Sahibi</span>
+                <span class="role-desc">Tesis &amp; slot yönetimi</span>
+            </div>
+        </div>
+
+        <!-- FORM ALANI -->
+        <form id="authForm" onsubmit="handleAuthSubmit(event)">
+            <div class="form-group">
+                <label>Kullanıcı Adı veya E-posta:</label>
+                <input type="text" id="inputUsername" required placeholder="ornek_kullanici">
+            </div>
+
+            <div class="form-group">
+                <label>Şifre:</label>
+                <input type="password" id="inputPassword" required placeholder="••••••••">
+            </div>
+
+            <!-- OTOPARK SAHİBİ KAYIT FORMU EK BİLGİLERİ -->
+            <div id="ownerRegistrationFields" class="owner-fields">
+                <div class="owner-fields-title">🏢 İşletilecek Otopark Bilgileri</div>
+                
+                <div class="form-group">
+                    <label>Otopark Adı:</label>
+                    <input type="text" id="inputLotName" placeholder="Örn: Kadıköy Çarşı Otoparkı">
+                </div>
+
+                <div class="form-group">
+                    <label>Konum / İlçe:</label>
+                    <input type="text" id="inputLotDistrict" placeholder="Örn: Kadıköy / İstanbul">
+                </div>
+
+                <div class="row-2">
+                    <div class="form-group">
+                        <label>Kat Sayısı:</label>
+                        <input type="number" id="inputLotFloors" value="3" min="1" max="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Kat Başı Slot:</label>
+                        <input type="number" id="inputLotCapacity" value="16" min="4" max="40">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnSubmit">Giriş Yap</button>
+        </form>
+    </div>
+
+    <script>
+        const STORAGE_USERS = 'PARK360_USERS';
+        const STORAGE_LOTS = 'PARK360_DATA';
+        const STORAGE_SESSION = 'PARK360_CURRENT_USER';
+
+        let currentMode = 'login'; // 'login' veya 'register'
+        let currentRole = 'customer'; // 'customer' veya 'owner'
+
+        // Varsayılan Kullanıcıları Başlat
+        function initAuthDatabase() {
+            if (!localStorage.getItem(STORAGE_USERS)) {
+                const initialUsers = [
+                    {
+                        username: "musteri",
+                        password: "123",
+                        role: "customer"
+                    },
+                    {
+                        username: "isletmeci",
+                        password: "123",
+                        role: "owner",
+                        managedLotIds: [1] // Varsayılan otoparkın sahibi
+                    }
+                ];
+                localStorage.setItem(STORAGE_USERS, JSON.stringify(initialUsers));
+            }
+        }
+
+        function switchAuthMode(mode) {
+            currentMode = mode;
+            document.getElementById('tabLoginBtn').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegisterBtn').classList.toggle('active', mode === 'register');
+            document.getElementById('btnSubmit').innerText = mode === 'login' ? 'Giriş Yap' : 'Hesap Oluştur';
+            hideAlert();
+            updateFormVisibility();
+        }
+
+        function selectRole(role) {
+            currentRole = role;
+            const custCard = document.getElementById('roleCustomer');
+            const ownerCard = document.getElementById('roleOwner');
+
+            custCard.classList.toggle('active', role === 'customer');
+            ownerCard.classList.toggle('active', role === 'owner');
+            ownerCard.classList.toggle('owner', role === 'owner');
+
+            updateFormVisibility();
+        }
+
+        function updateFormVisibility() {
+            const ownerFields = document.getElementById('ownerRegistrationFields');
+            const isOwnerRegister = (currentMode === 'register' && currentRole === 'owner');
+            ownerFields.classList.toggle('show', isOwnerRegister);
+
+            const lotNameInput = document.getElementById('inputLotName');
+            const lotDistrictInput = document.getElementById('inputLotDistrict');
+            if (isOwnerRegister) {
+                lotNameInput.setAttribute('required', 'true');
+                lotDistrictInput.setAttribute('required', 'true');
+            } else {
+                lotNameInput.removeAttribute('required');
+                lotDistrictInput.removeAttribute('required');
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('inputUsername').value.trim().toLowerCase();
+            const password = document.getElementById('inputPassword').value;
+
+            const users = JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
+
+            if (currentMode === 'login') {
+                // GİRİŞ KONTROLÜ
+                const foundUser = users.find(u => u.username === username && u.password === password);
+
+                if (!foundUser) {
+                    showAlert('Kullanıcı adı veya şifre hatalı!', 'error');
+                    return;
+                }
+
+                if (foundUser.role !== currentRole) {
+                    showAlert(`Bu hesap bir ${foundUser.role === 'owner' ? 'Otopark Sahibi' : 'Müşteri'} hesabıdır. Lütfen doğru rolü seçin.`, 'error');
+                    return;
+                }
+
+                // Oturum bilgisini kaydet
+                localStorage.setItem(STORAGE_SESSION, JSON.stringify(foundUser));
+                showAlert('Giriş başarılı, yönlendiriliyorsunuz...', 'success');
+
+                setTimeout(() => {
+                    redirectUser(foundUser);
+                }, 1000);
+
+            } else {
+                // KAYIT KONTROLÜ
+                const userExists = users.some(u => u.username === username);
+                if (userExists) {
+                    showAlert('Bu kullanıcı adı zaten kullanılıyor!', 'error');
+                    return;
+                }
+
+                let managedLotIds = [];
+
+                // Otopark Sahibi ise otoparkını oluştur ve kaydet
+                if (currentRole === 'owner') {
+                    const lotName = document.getElementById('inputLotName').value.trim();
+                    const lotDistrict = document.getElementById('inputLotDistrict').value.trim();
+                    const floors = parseInt(document.getElementById('inputLotFloors').value);
+                    const capacity = parseInt(document.getElementById('inputLotCapacity').value);
+
+                    const newLotId = Date.now();
+                    const newLot = generateLot(newLotId, lotName, lotDistrict, floors, capacity, username);
+
+                    // Otoparkı genel veritabanına ekle
+                    const lots = JSON.parse(localStorage.getItem(STORAGE_LOTS) || '[]');
+                    lots.push(newLot);
+                    localStorage.setItem(STORAGE_LOTS, JSON.stringify(lots));
+
+                    managedLotIds.push(newLotId);
+                }
+
+                const newUser = {
+                    username: username,
+                    password: password,
+                    role: currentRole,
+                    managedLotIds: managedLotIds
+                };
+
+                users.push(newUser);
+                localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+
+                // Otomatik oturum aç ve yönlendir
+                localStorage.setItem(STORAGE_SESSION, JSON.stringify(newUser));
+                showAlert('Hesabınız başarıyla oluşturuldu! Yönlendiriliyorsunuz...', 'success');
+
+                setTimeout(() => {
+                    redirectUser(newUser);
+                }, 1000);
+            }
+        }
+
+       function redirectUser(user) {
+    if (user.role === 'customer') {
+        // Müşteri ekranı (user.html) - Doğru
+        window.location.href = 'user.html';
+    } else {
+        // Otopark sahibi artık admin.html'e gidecek:
+        window.location.href = 'admin.html'; // (Eskiden 'index.html' yazıyordu)
+    }
+}
+
+        function generateLot(id, name, district, floors, spotsPerFloor, ownerUsername) {
+            const spots = [];
+            for (let f = 1; f <= floors; f++) {
+                const prefix = String.fromCharCode(64 + f);
+                for (let i = 1; i <= spotsPerFloor; i++) {
+                    const spotType = i <= 2 ? 'Disabled' : (i <= 4 ? 'EV' : 'Standard');
+                    spots.push({
+                        id: `${prefix}-${String(i).padStart(2, '0')}`,
+                        floor: f,
+                        type: spotType,
+                        isOccupied: false,
+                        plate: null,
+                        entryTime: null
+                    });
+                }
+            }
+            return { id, name, district, totalFloors: floors, owner: ownerUsername, spots };
+        }
+
+        function showAlert(msg, type) {
+            const box = document.getElementById('alertBox');
+            box.innerText = msg;
+            box.className = `alert-box alert-${type}`;
+            box.style.display = 'block';
+        }
+
+        function hideAlert() {
+            document.getElementById('alertBox').style.display = 'none';
+        }
+
+        initAuthDatabase();
+    </script>
+</body>
+</html>

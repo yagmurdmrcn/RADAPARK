@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Park360 - Otopark Sahibi Yönetim Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0B1120;
+            --bg-card: #1E293B;
+            --bg-dark: #0F172A;
+            --border-color: #334155;
+            --accent-primary: #6366F1;
+            --accent-primary-hover: #4F46E5;
+            --status-free: #10B981;
+            --status-occupied: #EF4444;
+            --status-reserved: #F59E0B;
+            --status-ev: #06B6D4;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 340px;
+            background-color: var(--bg-dark);
+            border-right: 1.5px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 16px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .logo-text span {
+            font-size: 10px;
+            font-weight: 600;
+            color: #818CF8;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            letter-spacing: 0.5px;
+        }
+
+        .lot-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 4px;
+        }
+
+        .lot-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .lot-card:hover { background-color: #273549; }
+        .lot-card.active { background-color: #1E1B4B; border-color: var(--accent-primary); }
+
+        .lot-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .lot-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+
+        .lot-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn {
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: #fff;
+            padding: 12px;
+            font-size: 14px;
+        }
+        .btn-primary:hover { background-color: var(--accent-primary-hover); }
+
+        .btn-danger-outline {
+            background-color: #334155;
+            color: var(--status-occupied);
+            padding: 10px;
+            font-size: 13px;
+        }
+        .btn-danger-outline:hover { background-color: #3e4f68; }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h2 { font-size: 26px; font-weight: 700; }
+        .header-title span { font-size: 13px; color: var(--text-muted); }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            background: #1E293B;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: var(--status-free);
+            box-shadow: 0 0 8px var(--status-free);
+        }
+
+        .btn-logout {
+            background: #334155;
+            color: #EF4444;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { background: #EF4444; color: white; }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .kpi-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .kpi-card span { font-size: 13px; color: var(--text-muted); }
+        .kpi-card h4 { font-size: 28px; font-weight: 700; margin-top: 6px; }
+
+        .floor-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .floor-btn {
+            background-color: var(--bg-card);
+            color: var(--text-muted);
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .floor-btn.active { background-color: #334155; color: #fff; }
+
+        .parking-grid-wrapper {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .spot-card {
+            background-color: var(--bg-dark);
+            border: 1.5px solid;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            user-select: none;
+        }
+        .spot-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        .spot-header { display: flex; justify-content: space-between; align-items: center; }
+        .spot-id { font-size: 16px; font-weight: 700; }
+        .spot-type { font-size: 11px; color: #64748B; font-weight: 600; }
+        .spot-divider { height: 1px; background-color: var(--border-color); margin: 12px 0; }
+        .spot-plate { text-align: center; font-size: 14px; font-weight: 700; min-height: 22px; }
+        .spot-status { text-align: center; font-size: 11px; color: #64748B; margin-top: 4px; font-weight: 600; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background-color: var(--bg-dark);
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            width: 440px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; }
+        .modal-close {
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 13px; color: var(--text-muted); }
+        .form-group input {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus { border-color: var(--accent-primary); }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+        .info-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .info-row { display: flex; justify-content: space-between; font-size: 13px; }
+
+        .empty-owner-view {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 1024px) {
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1.5px solid var(--border-color); }
+            .content { padding: 16px; overflow: visible; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .parking-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .parking-grid { grid-template-columns: repeat(2, 1fr); }
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-box">P</div>
+            <div class="logo-text">
+                <h1>Park360</h1>
+                <span>İŞLETME YÖNETİMİ</span>
+            </div>
+        </div>
+
+        <div class="user-badge">
+            <span style="color: var(--text-muted);">Giriş Yapan:</span>
+            <strong id="displayUsername" style="color: #818CF8;">İşletmeci</strong>
+        </div>
+
+        <div class="section-title">OTOPARKLARINIZ</div>
+        <div class="lot-list" id="lotList"></div>
+
+        <button class="btn btn-primary" onclick="openAddLotModal()">+ Yeni Otopark Ekle</button>
+        <button class="btn btn-danger-outline" onclick="removeCurrentLot()">Seçili Otoparkı Kaldır</button>
+    </aside>
+
+    <main class="content">
+        <header class="header-top">
+            <div class="header-title">
+                <h2 id="currentLotName">Yükleniyor...</h2>
+                <span id="currentLotDistrict">...</span>
+            </div>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    Canlı Rezervasyon Takibi Aktif
+                </div>
+                <button class="btn-logout" onclick="logout()">Güvenli Çıkış</button>
+            </div>
+        </header>
+
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <span>Toplam Kapasite</span>
+                <h4 id="kpiCapacity">0</h4>
+            </div>
+            <div class="kpi-card">
+                <span>Doluluk Oranı</span>
+                <h4 id="kpiRate" style="color: #38BDF8;">%0</h4>
+            </div>
+            <div class="kpi-card">
+                <span>Boş Alanlar</span>
+                <h4 id="kpiFree" style="color: var(--status-free);">0</h4>
+            </div>
+            <div class="kpi-card">
+                <span>Dolu / Rezerve</span>
+                <h4 id="kpiOccupied" style="color: var(--status-reserved);">0</h4>
+            </div>
+        </section>
+
+        <div class="floor-selector">
+            <span style="font-size: 14px; color: var(--text-muted);">Kat Seçimi:</span>
+            <div id="floorButtons" style="display: flex; gap: 8px;"></div>
+        </div>
+
+        <div class="parking-grid-wrapper">
+            <div class="parking-grid" id="spotsContainer"></div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="addLotModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 style="font-size: 18px; color: #38BDF8;">Yeni Otopark Kaydı</h3>
+                <button class="modal-close" onclick="closeModal('addLotModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Otopark Adı:</label>
+                <input type="text" id="inputLotName" placeholder="Örn: Levent Çarşı Otoparkı">
+            </div>
+            <div class="form-group">
+                <label>Lokasyon / İlçe:</label>
+                <input type="text" id="inputLotDistrict" placeholder="Örn: Beşiktaş / İstanbul">
+            </div>
+            <div class="form-group">
+                <label>Kat Sayısı (1 - 5):</label>
+                <input type="number" id="inputLotFloors" value="3" min="1" max="5">
+            </div>
+            <div class="form-group">
+                <label>Kat Başına Slot Kapasitesi:</label>
+                <input type="number" id="inputSpotsPerFloor" value="16" min="4" max="40">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger-outline" onclick="closeModal('addLotModal')">İptal</button>
+                <button class="btn btn-primary" onclick="saveNewLot()">Otoparkı Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="spotActionModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <h3 id="modalSpotId" style="font-size: 20px; color: #38BDF8;">A-01</h3>
+                    <span id="modalSpotType" style="font-size: 12px; color: var(--text-muted);">[Standart]</span>
+                </div>
+                <button class="modal-close" onclick="closeModal('spotActionModal')">✕</button>
+            </div>
+
+            <div id="checkInPanel" style="display: none;">
+                <div class="form-group">
+                    <label>Araç Plakası:</label>
+                    <input type="text" id="inputPlate" placeholder="34 ABC 789" style="text-transform: uppercase; font-weight: 700; font-size: 16px;">
+                </div>
+            </div>
+
+            <div id="reservedPanel" style="display: none;">
+                <div class="info-card" style="border-color: var(--status-reserved);">
+                    <div class="info-row">
+                        <span style="color: var(--text-muted);">Durum:</span>
+                        <strong style="color: var(--status-reserved);">Müşteri Rezervasyonu</strong>
+                    </div>
+                    <div class="info-row">
+                        <span style="color: var(--text-muted);">Rezerve Eden Plaka:</span>
+                        <strong id="resPlate" style="color: #38BDF8; font-size: 15px;"></strong>
+                    </div>
+                    <div class="info-row">
+                        <span style="color: var(--text-muted);">Planlanan Saat:</span>
+                        <strong id="resTime" style="color: #FCD34D; font-size: 15px;"></strong>
+                    </div>
+                    <div class="info-row">
+                        <span style="color: var(--text-muted);">Ödenecek Tutar (Rezervasyon):</span>
+                        <strong style="color: var(--status-free); font-size: 15px;">150.00 ₺</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div id="checkOutPanel" style="display: none;">
+                <div class="info-card">
+                    <div class="info-row">
+                        <span style="color: var(--text-muted);">Park Eden Plaka:</span>
+                        <strong id="outPlate" style="color: #38BDF8;"></strong>
+                    </div>
+                    <div class="info-row">
+                        <span style="color: var(--text-muted);">Giriş Saati:</span>
+                        <span id="outEntryTime"></span>
+                    </div>
+                    <div class="info-row">
+                        <span style="color: var(--text-muted);">Geçen Süre:</span>
+                        <span id="outDuration"></span>
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4px 0;">
+                    <div class="info-row" style="font-size: 15px;">
+                        <span style="color: var(--status-free); font-weight: 700;">Ödenecek Tutar:</span>
+                        <strong id="outFee" style="color: var(--status-free); font-size: 18px;"></strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-danger-outline" onclick="closeModal('spotActionModal')">Kapat</button>
+                <button id="btnCheckIn" class="btn btn-primary" style="background-color: var(--status-free);" onclick="handleCheckIn()">Giriş Yaptır</button>
+                <button id="btnAcceptReservation" class="btn btn-primary" style="background-color: var(--status-reserved); color: #000;" onclick="handleAcceptReservation()">Aracı İçeri Al (Aktifleştir)</button>
+                <button id="btnCancelReservation" class="btn btn-danger-outline" onclick="handleCancelReservation()">Rezervasyonu İptal Et</button>
+                <button id="btnCheckOut" class="btn btn-primary" style="background-color: var(--status-occupied);" onclick="handleCheckOut()">Çıkış &amp; Tahsil Et</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'PARK360_DATA';
+        const STORAGE_USERS = 'PARK360_USERS';
+        const STORAGE_SESSION = 'PARK360_CURRENT_USER';
+        const HOURLY_RATE = 50.0;
+
+        const currentUser = JSON.parse(localStorage.getItem(STORAGE_SESSION) || 'null');
+        if (!currentUser || currentUser.role !== 'owner') {
+            alert('Bu panele erişmek için Otopark Sahibi olarak giriş yapmalısınız!');
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('displayUsername').innerText = currentUser.username;
+
+        let allParkingLots = [];
+        let ownerParkingLots = [];
+        let currentLotId = null;
+        let currentFloor = 1;
+        let selectedSpotId = null;
+
+        function initData() {
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (rawData) {
+                allParkingLots = JSON.parse(rawData);
+            } else {
+                allParkingLots = [
+                    createLotObj(1, "Kadıköy Rıhtım Otoparkı", "Kadıköy / İstanbul", 3, 16, "isletmeci")
+                ];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(allParkingLots));
+            }
+
+            ownerParkingLots = allParkingLots.filter(lot => {
+                return (currentUser.managedLotIds && currentUser.managedLotIds.includes(lot.id)) || 
+                       (lot.owner === currentUser.username);
+            });
+
+            if (ownerParkingLots.length > 0) {
+                currentLotId = ownerParkingLots[0].id;
+            } else {
+                currentLotId = null;
+            }
+
+            renderApp();
+        }
+
+        function createLotObj(id, name, district, floors, spotsPerFloor, owner) {
+            const spots = [];
+            for (let f = 1; f <= floors; f++) {
+                const prefix = String.fromCharCode(64 + f);
+                for (let i = 1; i <= spotsPerFloor; i++) {
+                    const spotType = i <= 2 ? 'Disabled' : (i <= 4 ? 'EV' : 'Standard');
+                    spots.push({
+                        id: `${prefix}-${String(i).padStart(2, '0')}`,
+                        floor: f,
+                        type: spotType,
+                        isOccupied: false,
+                        isReserved: false,
+                        plate: null,
+                        entryTime: null,
+                        resTime: null,
+                        resFee: 0
+                    });
+                }
+            }
+            return { id, name, district, totalFloors: floors, owner: owner, spots };
+        }
+
+        function saveAllLots() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(allParkingLots));
+        }
+
+        function getCurrentLot() {
+            return ownerParkingLots.find(l => l.id === currentLotId);
+        }
+
+        function renderApp() {
+            renderSidebar();
+            const lot = getCurrentLot();
+
+            if (!lot) {
+                document.getElementById('currentLotName').innerText = "Kayıtlı Otopark Yok";
+                document.getElementById('currentLotDistrict').innerText = "Lütfen sol alttan otopark ekleyin.";
+                document.getElementById('kpiCapacity').innerText = "0";
+                document.getElementById('kpiOccupied').innerText = "0";
+                document.getElementById('kpiFree').innerText = "0";
+                document.getElementById('kpiRate').innerText = "%0";
+                document.getElementById('floorButtons').innerHTML = "";
+                document.getElementById('spotsContainer').innerHTML = `<div class="empty-owner-view">Henüz otoparkınız yok.</div>`;
+                return;
+            }
+
+            document.getElementById('currentLotName').innerText = lot.name;
+            document.getElementById('currentLotDistrict').innerText = lot.district;
+
+            const total = lot.spots.length;
+            const occupied = lot.spots.filter(s => s.isOccupied || s.isReserved).length;
+            const free = total - occupied;
+            const rate = total === 0 ? 0 : Math.round((occupied / total) * 100);
+
+            document.getElementById('kpiCapacity').innerText = total;
+            document.getElementById('kpiOccupied').innerText = occupied;
+            document.getElementById('kpiFree').innerText = free;
+            document.getElementById('kpiRate').innerText = `%${rate}`;
+
+            renderFloorButtons(lot.totalFloors);
+            renderSpots(lot);
+        }
+
+        function renderSidebar() {
+            const container = document.getElementById('lotList');
+            container.innerHTML = '';
+
+            ownerParkingLots.forEach(lot => {
+                const total = lot.spots.length;
+                const occupied = lot.spots.filter(s => s.isOccupied || s.isReserved).length;
+                const free = total - occupied;
+                const rate = total === 0 ? 0 : Math.round((occupied / total) * 100);
+
+                const card = document.createElement('div');
+                card.className = `lot-card ${lot.id === currentLotId ? 'active' : ''}`;
+                card.onclick = () => {
+                    currentLotId = lot.id;
+                    currentFloor = 1;
+                    renderApp();
+                };
+
+                card.innerHTML = `
+                    <h3>${lot.name}</h3>
+                    <p>${lot.district}</p>
+                    <div class="lot-metrics">
+                        <span style="color: #38BDF8;">%${rate} Doluluk</span>
+                        <span style="color: var(--status-free);">${free} Boş</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderFloorButtons(floorCount) {
+            const container = document.getElementById('floorButtons');
+            container.innerHTML = '';
+
+            for (let f = 1; f <= floorCount; f++) {
+                const btn = document.createElement('button');
+                btn.className = `floor-btn ${f === currentFloor ? 'active' : ''}`;
+                btn.innerText = `${f}. Kat`;
+                btn.onclick = () => {
+                    currentFloor = f;
+                    renderApp();
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        function renderSpots(lot) {
+            const container = document.getElementById('spotsContainer');
+            container.innerHTML = '';
+
+            const visibleSpots = lot.spots.filter(s => s.floor === currentFloor);
+
+            visibleSpots.forEach(spot => {
+                let color = 'var(--status-free)';
+                let statusText = 'BOŞ';
+                let plateText = 'BOŞ';
+
+                if (spot.isOccupied) {
+                    color = 'var(--status-occupied)';
+                    statusText = 'DOLU';
+                    plateText = spot.plate;
+                } else if (spot.isReserved) {
+                    color = 'var(--status-reserved)';
+                    statusText = spot.resTime ? `SAAT: ${spot.resTime}` : 'REZERVE';
+                    plateText = spot.plate;
+                } else if (spot.type === 'EV') {
+                    color = 'var(--status-ev)';
+                }
+
+                const card = document.createElement('div');
+                card.className = 'spot-card';
+                card.style.borderColor = color;
+                card.onclick = () => openSpotModal(spot.id);
+
+                card.innerHTML = `
+                    <div class="spot-header">
+                        <div class="spot-id">${spot.id}</div>
+                        <div class="spot-type">[${spot.type}]</div>
+                    </div>
+                    <div class="spot-divider"></div>
+                    <div class="spot-plate" style="color: ${color};">${plateText}</div>
+                    <div class="spot-status">${statusText}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openSpotModal(spotId) {
+            selectedSpotId = spotId;
+            const lot = getCurrentLot();
+            const spot = lot.spots.find(s => s.id === spotId);
+
+            document.getElementById('modalSpotId').innerText = spot.id;
+            document.getElementById('modalSpotType').innerText = `[${spot.type}]`;
+
+            const checkInPanel = document.getElementById('checkInPanel');
+            const reservedPanel = document.getElementById('reservedPanel');
+            const checkOutPanel = document.getElementById('checkOutPanel');
+
+            const btnCheckIn = document.getElementById('btnCheckIn');
+            const btnAcceptReservation = document.getElementById('btnAcceptReservation');
+            const btnCancelReservation = document.getElementById('btnCancelReservation');
+            const btnCheckOut = document.getElementById('btnCheckOut');
+
+            checkInPanel.style.display = 'none';
+            reservedPanel.style.display = 'none';
+            checkOutPanel.style.display = 'none';
+            btnCheckIn.style.display = 'none';
+            btnAcceptReservation.style.display = 'none';
+            btnCancelReservation.style.display = 'none';
+            btnCheckOut.style.display = 'none';
+
+            if (spot.isOccupied) {
+                checkOutPanel.style.display = 'block';
+                btnCheckOut.style.display = 'flex';
+
+                document.getElementById('outPlate').innerText = spot.plate;
+                const entry = new Date(spot.entryTime);
+                document.getElementById('outEntryTime').innerText = entry.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const diffMs = new Date() - entry;
+                const diffMins = Math.max(1, Math.floor(diffMs / 60000));
+                const hours = Math.floor(diffMins / 60);
+                const mins = diffMins % 60;
+                document.getElementById('outDuration').innerText = `${hours} sa ${mins} dk`;
+
+                const billedHours = Math.max(1, Math.ceil(diffMins / 60));
+                const totalFee = billedHours * HOURLY_RATE;
+                document.getElementById('outFee').innerText = `${totalFee.toFixed(2)} ₺`;
+
+            } else if (spot.isReserved) {
+                reservedPanel.style.display = 'block';
+                btnAcceptReservation.style.display = 'flex';
+                btnCancelReservation.style.display = 'flex';
+                document.getElementById('resPlate').innerText = spot.plate;
+                document.getElementById('resTime').innerText = spot.resTime || 'Belirtilmemiş';
+
+            } else {
+                checkInPanel.style.display = 'block';
+                btnCheckIn.style.display = 'flex';
+                document.getElementById('inputPlate').value = '';
+            }
+
+            document.getElementById('spotActionModal').style.display = 'flex';
+        }
+
+        function handleCheckIn() {
+            const plate = document.getElementById('inputPlate').value.trim().toUpperCase();
+            if (!plate) {
+                alert('Lütfen araç plakası girin!');
+                return;
+            }
+
+            const lot = getCurrentLot();
+            const spot = lot.spots.find(s => s.id === selectedSpotId);
+            spot.isOccupied = true;
+            spot.isReserved = false;
+            spot.plate = plate;
+            spot.entryTime = new Date().toISOString();
+
+            saveAllLots();
+            closeModal('spotActionModal');
+            renderApp();
+        }
+
+        function handleAcceptReservation() {
+            const lot = getCurrentLot();
+            const spot = lot.spots.find(s => s.id === selectedSpotId);
+            spot.isReserved = false;
+            spot.isOccupied = true;
+            spot.entryTime = new Date().toISOString();
+
+            saveAllLots();
+            closeModal('spotActionModal');
+            renderApp();
+            alert(`${spot.plate} plakalı araç rezerve alandan içeri alındı.`);
+        }
+
+        function handleCancelReservation() {
+            if (!confirm('Bu rezervasyon iptal edilsin mi?')) return;
+
+            const lot = getCurrentLot();
+            const spot = lot.spots.find(s => s.id === selectedSpotId);
+            spot.isReserved = false;
+            spot.plate = null;
+            spot.resTime = null;
+            spot.resFee = 0;
+
+            saveAllLots();
+            closeModal('spotActionModal');
+            renderApp();
+        }
+
+        function handleCheckOut() {
+            if (!confirm('Aracın çıkışı yapılarak park alanı boşaltılsın mı?')) return;
+
+            const lot = getCurrentLot();
+            const spot = lot.spots.find(s => s.id === selectedSpotId);
+            spot.isOccupied = false;
+            spot.isReserved = false;
+            spot.plate = null;
+            spot.entryTime = null;
+            spot.resTime = null;
+            spot.resFee = 0;
+
+            saveAllLots();
+            closeModal('spotActionModal');
+            renderApp();
+        }
+
+        function openAddLotModal() {
+            document.getElementById('inputLotName').value = '';
+            document.getElementById('inputLotDistrict').value = '';
+            document.getElementById('addLotModal').style.display = 'flex';
+        }
+
+        function saveNewLot() {
+            const name = document.getElementById('inputLotName').value.trim();
+            const district = document.getElementById('inputLotDistrict').value.trim();
+            const floors = parseInt(document.getElementById('inputLotFloors').value);
+            const capacity = parseInt(document.getElementById('inputSpotsPerFloor').value);
+
+            if (!name || !district) {
+                alert('Lütfen tüm alanları doldurun!');
+                return;
+            }
+
+            const newId = Date.now();
+            const newLot = createLotObj(newId, name, district, floors, capacity, currentUser.username);
+
+            allParkingLots.push(newLot);
+            ownerParkingLots.push(newLot);
+
+            if (!currentUser.managedLotIds) currentUser.managedLotIds = [];
+            currentUser.managedLotIds.push(newId);
+            localStorage.setItem(STORAGE_SESSION, JSON.stringify(currentUser));
+
+            const users = JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
+            const uIdx = users.findIndex(u => u.username === currentUser.username);
+            if (uIdx !== -1) {
+                users[uIdx].managedLotIds = currentUser.managedLotIds;
+                localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+            }
+
+            currentLotId = newId;
+            currentFloor = 1;
+
+            saveAllLots();
+            closeModal('addLotModal');
+            renderApp();
+        }
+
+        function removeCurrentLot() {
+            const lot = getCurrentLot();
+            if (!lot) return;
+
+            if (confirm(`'${lot.name}' sistemden tamamen kaldırılsın mı?`)) {
+                allParkingLots = allParkingLots.filter(l => l.id !== currentLotId);
+                ownerParkingLots = ownerParkingLots.filter(l => l.id !== currentLotId);
+
+                if (currentUser.managedLotIds) {
+                    currentUser.managedLotIds = currentUser.managedLotIds.filter(id => id !== currentLotId);
+                    localStorage.setItem(STORAGE_SESSION, JSON.stringify(currentUser));
+                }
+
+                currentLotId = ownerParkingLots.length > 0 ? ownerParkingLots[0].id : null;
+                saveAllLots();
+                renderApp();
+            }
+        }
+
+        function logout() {
+            if (confirm('Oturum kapatılsın mı?')) {
+                localStorage.removeItem(STORAGE_SESSION);
+                window.location.href = 'index.html';
+            }
+        }
+
+        function closeModal(id) {
+            if(id) {
+                document.getElementById(id).style.display = 'none';
+            } else {
+                document.getElementById('spotActionModal').style.display = 'none';
+                document.getElementById('addLotModal').style.display = 'none';
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY) {
+                initData();
+            }
+        });
+
+        initData();
+    </script>
+</body>
+</html>
